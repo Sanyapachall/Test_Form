@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exam Form</title>
+  </head>
+  <body>
+    <h1>Online Test</h1>
+    <div class="container form">
+      <form onsubmit="validateForm()" action="main_exam.html">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" required />
+        <br />
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" required />
+        <br />
+        <label for="rollNumber">Roll Number:</label>
+        <input type="number" id="rollNumber" required />
+        <br />
+        <label for="email">Email:</label>
+        <input type="email" id="email" required />
+        <br />
+        <label for="password">Password:</label>
+        <input type="password" id="password" required />
+        <br />
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </body>
+
+  <script>
+    function validateForm() {
+      // If all validations pass, save data to local storage
+      if (
+        validateFirstName() &&
+        validateLastName() &&
+        validateRollNumber() &&
+        validateEmail() &&
+        validatePassword()
+      ) {
+        var formData = {
+          firstName: document.getElementById("firstName").value,
+          lastName: document.getElementById("lastName").value,
+          rollNumber: document.getElementById("rollNumber").value,
+          email: document.getElementById("email").value,
+          password: document.getElementById("password").value,
+        };
+
+        // Retrieve existing data from local storage or initialize an empty array
+        var savedData = JSON.parse(localStorage.getItem("formDataArray")) || [];
+
+        // Check for duplicate roll number or email
+        var isDuplicate = savedData.some(function (entry) {
+          return (
+            entry.rollNumber === formData.rollNumber ||
+            entry.email === formData.email
+          );
+        });
+
+        if (isDuplicate) {
+          alert("You cant give the exam again");
+          return;
+        } else {
+          console.log("HEre too");
+          savedData.push(formData);
+
+          localStorage.setItem("formDataArray", JSON.stringify(savedData));
+          window.location.href = "http://127.0.0.1:5500/main_exam.html";
+        }
+
+        // Save the updated array back to local storage
+      }
+    }
+
+    // Validation functions (same as before)
+    function validateFirstName() {
+      var firstName = document.getElementById("firstName").value;
+      if (firstName.trim() === "") {
+        alert("First name cannot be empty");
+        return false;
+      }
+      return true;
+    }
+
+    function validateLastName() {
+      var lastName = document.getElementById("lastName").value;
+      if (lastName.trim() === "") {
+        alert("Last name cannot be empty");
+        return false;
+      }
+      return true;
+    }
+
+    function validateRollNumber() {
+      var rollNumber = document.getElementById("rollNumber").value;
+      if (isNaN(rollNumber) || rollNumber.trim() === "") {
+        alert("Roll number should be a valid number");
+        return false;
+      }
+      return true;
+    }
+
+    function validateEmail() {
+      var email = document.getElementById("email").value;
+      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Invalid email format");
+        return false;
+      }
+      return true;
+    }
+
+    function validatePassword() {
+      var password = document.getElementById("password").value;
+      if (password.length < 6) {
+        alert("Password should be at least 6 characters long");
+        return false;
+      }
+      return true;
+    }
+  </script>
+</html>

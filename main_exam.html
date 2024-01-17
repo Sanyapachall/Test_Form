@@ -1,0 +1,312 @@
+<!-- edit-test.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      button {
+        padding: 10px;
+        background-color: red;
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 20px;
+      }
+      button:hover {
+        background-color: red;
+      }
+      label {
+        display: block;
+        margin-bottom: 10px;
+      }
+      .pagination {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        gap: 5px;
+        margin-bottom: 10px;
+      }
+      .pagination li {
+        cursor: pointer;
+        background-color: #eee;
+        padding: 5px 10px;
+        border-radius: 5px;
+      }
+      .pagination li:hover {
+        background-color: #ddd;
+      }
+      .answered {
+        background-color: #5cb85c;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Welcome to the Online Exam</h1>
+    <button type="button" onclick="startExam()">Start Exam</button>
+    <div id="question-container"></div>
+    <ul class="pagination" id="pagination"></ul>
+    <div id="result-container"></div>
+
+    <script>
+       var savedData = JSON.parse(localStorage.getItem("formDataArray")) || [];
+      let user = {
+        firstName: savedData[savedData.length-1].firstName,
+        lastName: savedData[savedData.length-1].lastName,
+        email: savedData[savedData.length-1].email,
+        rollNumber: savedData[savedData.length-1].rollNumber,
+        answers: [],
+      };
+      console.log(user.answers);
+      let currentQuestionIndex = 0;
+
+     function startExam() {
+  
+        showQuestion();
+        showPagination();
+      }
+
+
+    //   function showQuestion() {
+    //     const questionContainer = document.getElementById("question-container");
+    //     const questions =
+    //       JSON.parse(localStorage.getItem("Question_data")) || [];
+    //     const questionData = questions[currentQuestionIndex];
+
+    //     if (questionData) {
+    //       let optionsHTML = "";
+    //       questionData.options.forEach((option, index) => {
+    //         optionsHTML += `
+    //           <label>
+    //             <input
+    //               type="radio"
+    //               name="answer"
+    //               value="${option}"
+    //               required
+    //             />
+    //             ${index + 1}. ${option}
+    //           </label>`;
+    //       });
+
+    //       questionContainer.innerHTML = `
+    //         <h3>${questionData.text}</h3>
+    //         ${optionsHTML}
+    //       `;
+
+    //       // Display previous question button if it's not the first question
+    //       if (currentQuestionIndex > 0) {
+    //         questionContainer.innerHTML += `<br/>
+    //     <button type="button" onclick="previousQuestion()">Previous Question</button>
+    //   `;
+    //       }
+
+    //       // Display buttons for actions
+    //       questionContainer.innerHTML += `<br/><br/>
+    //   <button type="button" onclick="submitAnswer()">Submit Answer</button>
+    //   <button type="button" onclick="skipQuestion()">Skip Question</button>
+    // `;
+
+    //       // Display next question button if there are more questions
+    //       if (currentQuestionIndex < questions.length - 1) {
+    //         questionContainer.innerHTML += `
+    //     <button type="button" onclick="nextQuestion()">Next Question</button>
+    //   `;
+    //       } else {
+    //         // Display finish exam button if it's the last question
+    //         questionContainer.innerHTML += `<br/><br/><br/>
+    //     <button type="button" onclick="finishExam()">Finish Exam</button>
+    //   `;
+    //       }
+    //     } else {
+    //       // No more questions, calculate and show result
+    //       calculateResult();
+    //     }
+    //   }
+    function showQuestion() {
+  const questionContainer = document.getElementById("question-container");
+  const questions = JSON.parse(localStorage.getItem("Question_data")) || [];
+  const questionData = questions[currentQuestionIndex];
+
+  if (questionData) {
+    let optionsHTML = "";
+    questionData.options.forEach((option, index) => {
+      const isChecked = isAnswerSelected(questionData.text, option);
+      optionsHTML += `
+        <label>
+          <input
+            type="radio"
+            name="answer"
+            value="${option}"
+            ${isChecked ? 'checked' : ''}
+            required
+          />
+          ${index + 1}. ${option}
+        </label>`;
+    });
+
+    questionContainer.innerHTML = `
+      <h3>${questionData.text}</h3>
+      ${optionsHTML}
+    `;
+
+    // Display previous question button if it's not the first question
+    if (currentQuestionIndex > 0) {
+      questionContainer.innerHTML += `<br/>
+        <button type="button" onclick="previousQuestion()">Previous Question</button>
+      `;
+    }
+
+    // Display buttons for actions
+    questionContainer.innerHTML += `<br/><br/>
+      <button type="button" onclick="submitAnswer()">Submit Answer</button>
+      <button type="button" onclick="skipQuestion()">Skip Question</button>
+    `;
+
+    // Display next question button if there are more questions
+    if (currentQuestionIndex < questions.length - 1) {
+    questionContainer.innerHTML += `
+      <button type="button" onclick="nextQuestion()">Next Question</button>
+    `;
+  } else {
+    // Display finish exam button if it's the last question
+    questionContainer.innerHTML += `<br/><br/><br/>
+      <button type="button" onclick="finishExam()">Finish Exam</button>
+    `;
+  }
+  } else {
+    // No more questions, calculate and show result
+    calculateResult();
+  }
+}
+
+function isAnswerSelected(question, option) {
+  const selectedAnswer = user.answers.find(
+    (answer) => answer.question === question
+  );
+  return selectedAnswer && selectedAnswer.answer === option;
+}
+
+
+
+
+      function submitAnswer() {
+        const selectedAnswer = document.querySelector(
+          'input[name="answer"]:checked'
+        );
+        if (!selectedAnswer) {
+          alert("Please select an answer.");
+          return;
+        }
+        const answer = selectedAnswer.value;
+        user.answers.push({
+          question: JSON.parse(localStorage.getItem("Question_data"))[currentQuestionIndex].text,
+          answer,
+        });
+        currentQuestionIndex++;
+        showQuestion();
+        showPagination();
+      }
+
+      function skipQuestion() {
+        currentQuestionIndex++;
+        showQuestion();
+        showPagination();
+      }
+
+      function previousQuestion() {
+        if (currentQuestionIndex > 0) {
+          currentQuestionIndex--;
+          showQuestion();
+          showPagination();
+        }
+      }
+
+      function nextQuestion() {
+        currentQuestionIndex++;
+        showQuestion();
+        showPagination();
+      }
+
+      function finishExam() {
+        // Calculate and show result
+        calculateResult();
+      }
+      let score = 0;
+      function calculateResult() {
+        
+        const userAnswers = user.answers;
+        const questions =
+          JSON.parse(localStorage.getItem("Question_data")) || [];
+
+        // Calculate score
+        userAnswers.forEach((userAnswer) => {
+          const correctAnswer = questions.find(
+            (q) => q.text === userAnswer.question
+          ).correctAnswer;
+          if (userAnswer.answer === correctAnswer) {
+            score++;
+          } else {
+            // Deduct 1 mark for incorrect answer
+            score--;
+          }
+        });
+        var Array_Data= JSON.parse(localStorage.getItem("Marks")) || [];;
+        let marks_Array=  {
+        firstName: savedData[savedData.length-1].firstName,
+        lastName: savedData[savedData.length-1].lastName,
+        rollNumber: savedData[savedData.length-1].rollNumber,
+        score:score,
+      };
+      Array_Data.push(marks_Array);
+      localStorage.setItem("Marks",JSON.stringify(Array_Data));
+        // Display result
+        const resultContainer = document.getElementById("result-container");
+        resultContainer.innerHTML = `
+          <h2>Exam Result</h2>
+          <p>Name: ${user.firstName} ${user.lastName}</p>
+          <p>Roll Number: ${user.rollNumber}</p>
+          <p>Email: ${user.email}</p>
+          <p>Score: ${score}</p>
+          <p>${
+            score >= 3 ? "Congratulations! You passed." : "Sorry! You failed."
+          }</p>
+          
+        `;
+
+      }
+
+      function showPagination() {
+        const paginationContainer = document.getElementById("pagination");
+        const questions =
+          JSON.parse(localStorage.getItem("Question_data")) || [];
+
+        paginationContainer.innerHTML = "";
+        questions.forEach((_, index) => {
+          const listItem = document.createElement("li");
+          listItem.textContent = index + 1;
+
+          if (user.answers.find((answer) => answer.question === questions[index].text)) {
+            listItem.classList.add("answered");
+          }
+
+          listItem.addEventListener("click", () => {
+            currentQuestionIndex = index;
+            showQuestion();
+            showPagination();
+          });
+
+          paginationContainer.appendChild(listItem);
+        });
+      }
+
+     
+
+
+    </script>
+  </body>
+</html>

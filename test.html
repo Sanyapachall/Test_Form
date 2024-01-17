@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        width: 25%;
+      }
+      input,
+      select {
+        margin-bottom: 10px;
+      }
+      button {
+        padding: 10px;
+        background-color: red;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: red;
+      }
+    </style>
+    </head>
+
+
+  <body>
+    <h1>Welcome to the Online Exam</h1>
+    <form>
+      <label for="firstName">First Name:</label>
+      <input type="text" id="firstName" required />
+
+      <label for="lastName">Last Name:</label>
+      <input type="text" id="lastName" required />
+
+      <label for="rollNumber">Roll Number:</label>
+      <input type="text" id="rollNumber" required />
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" required />
+     
+      <label for="password">Password:</label>
+      <input type="password" id="password" required />
+
+      <button type="button" onclick="startExam()">Start Exam</button>
+    </form>
+    <div id="question-container"></div>
+    <div id="result-container"></div>
+  </body>
+
+    <script>
+      // Sample Questions
+      const questions = [
+        {
+          question: "What is the capital of France?",
+          options: ["Berlin", "Madrid", "Paris", "Rome"],
+          correctAnswer: "Paris",
+        },
+        {
+          question: "Which planet is known as the Red Planet?",
+          options: ["Earth", "Mars", "Jupiter", "Venus"],
+          correctAnswer: "Mars",
+        },
+        {
+            question: "What is the largest mammal in the world?",
+            options: ["Elephant", "Blue Whale", "Giraffe", "Hippopotamus"],
+            correctAnswer: "Blue Whale",
+        },
+        {
+            question: "Which country is known as the Land of the Rising Sun?",
+            options: ["China", "South Korea", "Japan", "Vietnam"],
+            correctAnswer: "Japan",
+        },
+        {
+            question: "Who wrote 'Romeo and Juliet'?",
+            options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Leo Tolstoy"],
+            correctAnswer: "William Shakespeare",
+        },
+        {
+            question: "In which year did the Titanic sink?",
+            options: ["1912", "1920", "1935", "1941"],
+            correctAnswer: "1912",
+        },
+        {
+            question: "What is the capital of Australia?",
+            options: ["Sydney", "Melbourne", "Canberra", "Brisbane"],
+            correctAnswer: "Canberra",
+        },
+        {
+            question: "Who painted the Mona Lisa?",
+            options: ["Vincent van Gogh", "Leonardo da Vinci", "Pablo Picasso", "Michelangelo"],
+            correctAnswer: "Leonardo da Vinci",
+        },
+        {
+            question: "Which element has the chemical symbol 'O'?",
+            options: ["Oxygen", "Gold", "Iron", "Silver"],
+            correctAnswer: "Oxygen",
+        },
+        {
+            question: "What is the capital of Brazil?",
+            options: ["Rio de Janeiro", "Sao Paulo", "Brasilia", "Salvador"],
+            correctAnswer: "Brasilia",
+        },
+      ];
+      let user = {
+        firstName: "",
+        lastName: "",
+        rollNumber: "",
+        email: "",
+        password: "",
+        answers: [],
+      };
+      let currentQuestionIndex = 0;
+
+      function startExam() {
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const rollNumber = document.getElementById("rollNumber").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        if (!validateForm(firstName, lastName, rollNumber, email, password)) {
+          return;
+        }
+
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.rollNumber = rollNumber;
+        user.email = email;
+        user.password = password;
+
+        // Show the first question
+        showQuestion();
+      }
+
+      function validateForm(firstName, lastName, rollNumber, email, password) {
+        if (!firstName || !lastName || !rollNumber || !email || !password) {
+          alert("Please fill in all fields.");
+          return false;
+        }
+
+        // Add more specific validations if needed
+
+        return true;
+      }
+
+      function showQuestion() {
+        const questionContainer = document.getElementById("question-container");
+        const questionData = questions[currentQuestionIndex];
+        if (questionData) {
+          let optionsHTML = "";
+          questionData.options.forEach((option, index) => {
+            optionsHTML += `<input type="radio" name="answer" value="${option}">${option}<br>`;
+          });
+          questionContainer.innerHTML = `
+          <h3>${questionData.question}</h3>
+          <form id="questionForm">
+            ${optionsHTML}
+          </form>
+          <button type="button" onclick="submitAnswer()">Submit Answer</button>
+          <button type="button" onclick="skipQuestion()">Skip Question</button>
+        `;
+        } else {
+          // No more questions, calculate and show result
+          calculateResult();
+        }
+      }
+
+      function submitAnswer() {
+        const selectedAnswer = document.querySelector(
+          'input[name="answer"]:checked'
+        );
+        if (!selectedAnswer) {
+          alert("Please select an answer or skip the question.");
+          return;
+        }
+        const answer = selectedAnswer.value;
+        user.answers.push({
+          question: questions[currentQuestionIndex].question,
+          answer,
+        });
+        // Move to the next question
+        currentQuestionIndex++;
+        showQuestion();
+      }
+
+      function skipQuestion() {
+        currentQuestionIndex++;
+        showQuestion();
+      }
+
+      function calculateResult() {
+        let score = 0;
+        // Calculate score
+        user.answers.forEach((userAnswer) => {
+          const correctAnswer = questions.find(
+            (q) => q.question === userAnswer.question
+          ).correctAnswer;
+          if (userAnswer.answer === correctAnswer) {
+            score++;
+          } else {
+            // Deduct 1 mark for incorrect answer
+            score--;
+          }
+        });
+        // Display result
+        const resultContainer = document.getElementById("result-container");
+        resultContainer.innerHTML = `
+        <h2>Exam Result</h2>
+        <p>Name: ${user.firstName} ${user.lastName}</p>
+        <p>Roll Number: ${user.rollNumber}</p>
+        <p>Email: ${user.email}</p>
+        <p>Score: ${score}</p>
+        <p>${
+          score >= 6 ? "Congratulations! You passed." : "Sorry! You failed."
+        }</p>
+      `;
+      }
+    </script>
+ 
+</html>
+

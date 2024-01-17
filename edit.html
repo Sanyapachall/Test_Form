@@ -1,0 +1,93 @@
+<!-- edit-test.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Question - Online Test Admin Panel</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+  <h3 style="color: #db4444" class="py-3 d-flex justify-content-center">
+    <b>Edit Question - Online Test Admin Panel</b>
+  </h3>
+  <div id="edit-test-form" class="container">
+    <form>
+      <label for="editQuestion">Question:</label>
+      <textarea id="editQuestion" required></textarea>
+
+      <label for="editCorrectAnswer">Correct Answer:</label>
+      <input type="text" id="editCorrectAnswer" required />
+
+      <label for="editOption1">Option 1:</label>
+      <input type="text" id="editOption1" required />
+
+      <label for="editOption2">Option 2:</label>
+      <input type="text" id="editOption2" required />
+
+      <label for="editOption3">Option 3:</label>
+      <input type="text" id="editOption3" required />
+
+      <label for="editOption4">Option 4:</label>
+      <input type="text" id="editOption4" required />
+
+      <button type="button" id="updateQuestionButton">Update Question</button>
+    </form>
+  </div>
+
+  <script>
+    // Retrieve test ID from the URL
+    function getIdFromUrl() {
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      return urlParams.get("id");
+    }
+    const testId = getIdFromUrl();
+    console.log(testId);
+
+    // Load test details for editing
+    const storedTests = JSON.parse(localStorage.getItem("Question_data")) || [];
+    console.log(storedTests);
+    let testToEdit = storedTests.find((test) => test.id === parseInt(testId));
+
+    // Populate form fields with existing data
+    $("#editQuestion").val(testToEdit.text);
+    $("#editCorrectAnswer").val(testToEdit.correctAnswer);
+    $("#editOption1").val(testToEdit.options[0]);
+    $("#editOption2").val(testToEdit.options[1]);
+    $("#editOption3").val(testToEdit.options[2]);
+    $("#editOption4").val(testToEdit.options[3]);
+
+    // Add event listener for the "Update" button
+    $("#updateQuestionButton").on("click", updateTest);
+
+    function updateTest() {
+      const updatedQuestionText = $("#editQuestion").val();
+      const updatedCorrectAnswer = $("#editCorrectAnswer").val();
+      const updatedOption1 = $("#editOption1").val();
+      const updatedOption2 = $("#editOption2").val();
+      const updatedOption3 = $("#editOption3").val();
+      const updatedOption4 = $("#editOption4").val();
+
+      // Validation checks
+      if (!updatedQuestionText || !updatedCorrectAnswer || !updatedOption1 || !updatedOption2 || !updatedOption3 || !updatedOption4) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      // Update test details
+      testToEdit.text = updatedQuestionText;
+      testToEdit.correctAnswer = updatedCorrectAnswer;
+      testToEdit.options = [updatedOption1, updatedOption2, updatedOption3, updatedOption4];
+
+      // Update storedTests array in localStorage
+      localStorage.setItem("Question_data", JSON.stringify(storedTests));
+
+      // Redirect back to the admin panel
+      window.location.href = "admin.html";
+    }
+  </script>
+</body>
+</html>
